@@ -1,0 +1,532 @@
+
+root = "C:\Users\aleks\..." # change this to your project
+
+project_folder = root + "project/"
+
+data_folder = project_folder + "data/"
+
+pd.read_csv(data_folder + 'data.csv')
+
+---
+title: 'Unit 9: Efficient coding practices'
+author: "Prof. Aleksandr Michuda"
+subtitle: AEM 6850
+format: 
+    revealjs:
+        scrollable: true
+        standalone: true
+        chalkboard: true
+        touch: true
+---
+
+
+## Plan for today
+
+1.  Motivation
+2.  My philosophy
+3.  Organizing projects/scripts/code
+4.  Guiding principles
+5. Writing good functions
+6. Writing classes
+
+## Disclaimers
+
+-   I'm not a computer scientist
+-   The ideas here reflect my experience and that of others
+-   Although our workshop is in python, many of these ideas apply to other languages
+
+## Motivation
+
+Good code...
+
+-   Increases confidence in your work
+-   Increases the chances other researchers will reproduce, replicate and cite your work
+-   Saves you (and others) time
+-   Reduces the chances of making mistakes
+-   Is easy to understand
+-   May be portable
+
+## Coding philosophy
+
+You are writing code for OTHERS (that includes yourself in $t+1$)
+
+## Organizing a project 
+
+-   A project comes with general instructions
+
+    -   It could be a readme.txt file
+    -   It should specify the authors, what the project is about and describe files
+
+-   Folders for different types of files
+
+    -   Don't mix raw data with "cleaned" data
+
+-   No single best way of organization but this is a good start:
+
+    -   Folder for code (no subfolders)
+
+    -   Folder(s) for input(s)
+
+        -   A folder for raw data (which you never modify)
+        -   A folder for cleaned/modified data (which you create in the script files)
+
+    -   Folder(s) for output(s)
+
+        -   A folder for images / tables / etc.
+
+    -   Folder for packages (optional)
+
+## Example of folder structure
+
+-   code 
+
+-   data
+
+    -   raw (data as downloaded from web, can be large)
+    -   clean (data needed for analysis)
+
+-   output (that show up in the paper only)
+
+    -   figures
+    -   tables
+
+-   paper
+    - Optionally, the raw markdown of the paper to be rendered.
+
+-   presentations
+
+-   Others: meeting notes, documentation, etc.
+
+## Organizing your script files
+
+-   You should have one "main" file that imports or uses different modules from another folder
+
+    -   Example of tasks: cleaning data, regression analysis, etc.
+
+-   Never have all your code in a single script file (unless it is a tiny project. e.g. your homework)
+
+-   Script files should have intuitive names and follow a work flow:
+    - cleaning.py
+    - regression.py
+    - utils.py
+
+- Your file structure should look something like this:
+
+```
+.
+└── project_folder/
+    ├── data/
+    │   ├── raw/
+    │   └── clean/
+    ├── src/
+    │   ├── __init__.py
+    │   ├── analysis.py
+    │   ├── cleaning.py
+    │   └── utils.py
+    └── main.py
+```
+
+## Good practice to create special script files
+
+-   A master script file (e.g. main.py or main.ipynb) that runs all project scripts file in the correct order
+
+```python
+from src.cleaning import CleanData
+from src.analysis import Regression
+
+c = CleanData()
+
+c.clean()
+...
+```
+
+## Code within a script file
+
+-   In your `src/` make sure to document your classes, functions and methods so that a user can understand what each part of your code does.
+- Use google docstrings to make things easy
+- Maybe even add type definitions
+- Install the `autoDocstring - Python` extension
+- https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
+
+```python
+def f(x: int, y: dict, z: pd.DataFrame) -> pd.DataFrame:
+    """This function takes x, y and z and transforms it into w
+
+    Args:
+        x (int): Input integer, can be between 0 and 10
+        y (dict): A dictionary of important keys
+        z (pd.DataFrame): A dataframe that includes columns A, B and C
+
+    Example:
+        Examples can be given using either the ``Example`` or ``Examples``
+        sections. An example of using this function would be:
+
+            $ x = 10
+            $ y = {'a' : 0, 'b' : 2}
+            $ z = pd.DataFrame({'a' : [1,2,3], 'b': [2,3,4]})
+            $ print(f(x,y,z))
+    
+    Returns:
+        pd.DataFrame: The resulting dataframe that includes information on ....
+    """        
+    return w
+
+```
+
+## Documenting Code Saves Time
+
+- The autoDocstring extension makes making google docstrings fast and easy
+- The more you document your modules, the better it is in the long run for you and for future replicators
+- Make a habit of changing the docstring when you change the code
+- The aim is come publication time, you won't need to spend that much time explaining things in the README.
+    - The README should give a basic explanation of how to replicate the work, but the modules in source will get into the nitty-gritty for anyone interested.
+
+## Guiding Principles 1/2
+
+-   Think constantly about reproducibility
+
+    -   Your script files should run entirely without errors (start with your computer!)
+    -   Rely on relative paths (no hard coding)
+
+-   Don't Repeat Yourself (DRY)
+
+    -   Do not copy-paste pieces of code within the same script file (Solution: create a function and use loops)
+    -   Do not copy-paste pieces of code across script files (Solution: create a script file containing functions, and load when necessary.
+    -   Copy-pasting code is a red flag
+    - Rule of thumb: If you find yourself copy-pasting more than twice, stop what you're doing and created a function
+
+-   Give objects and folders simple and intuitive names
+    -   Good names are short and informative
+    -   Limit use of upper case and weird characters (MyModified.GDP.var or log_gdp?)
+
+
+## Guiding Principles 2/2
+
+-   Annotate your code concisely but generously
+
+    -   Better to err on the side of too many annotations
+    -   Should help understand the purpose of any significant piece of your code
+    -   Annotate single lines when code is relatively complex
+
+-   Make your code look good (i.e. easy to read)!
+
+    - Keep consistent indentation and spacing
+    - Avoid deep nesting when possible
+    - Favor several lines with short expressions than a long line with multiple expressions
+    - The benefit of python is that it reads like pseudo-code. 
+        - In principle, you should be able to 
+
+## Writing a good function
+
+- The trick to writing good functions is not to have any *side effects*
+- The aim is to make sure that your function is not dependent on anything going outside of its scope
+
+```python
+
+df = pd.DataFrame(...)
+
+def function_with_side_effects(x: int):
+    df['new_var'] = x+1
+    return df['new_var']*2
+
+# successive function calls change df when you call the function
+
+```
+
+- Now a function has changed the dataframe outside of it!
+- This example was contrived, but in many case, you need to be careful if you're changing a variable out of a function's scope
+- Rather do something like:
+
+```python
+def function_without_side_effects(x:int):
+    d = df.copy()
+    d['new_var'] = x+1
+    return d['new_var']*2
+```
+
+- And `df` is no longer changed 
+
+- But there's still a problem with that function
+- It depends on a dataframe that is outside of its scope...
+- We can fix this by adding a new parameter `d`:
+
+```python
+def good_function(x:int,d:pd.DataFrame):
+    new_df = d.copy()
+    new_df['new_var'] = x+1
+    return new_df['new_var']*2
+```
+- The function is no longer dependent on the environment to run (as it needed `df` before)
+- Now this function will work ANYWHERE, and you be safe in that this function won't change anything outside its scope and it's truly modular.
+- Writing good functions helps in the end, as it minimizes errors, and pinpoints where errors are coming from.
+- If a function has no side-effects and and if it doesn't depend on anything in a particular file, then if it has an error, it can only be coming from *inside the function*.
+
+
+## Writing Classes for Organization and Clean Code
+
+- Writing classes is not much different than writing functions
+- You can probably get away with doing a lot of your code with just functions
+- But when you undertake a larger project, even functions might not be enough
+- Classes allow you to organize your code even further
+    - And mix situations where you need code and *state* at the same time
+
+## Example: Cleaning Waves or Different Countries' Panel Data
+
+- LSMS is a staple of many development economics projects
+- But LSMS might differ across country or even across wave
+    - Different questions
+    - Questions posed differently
+    - Variables named differently
+- So data cleaning can be... annoying because it's similar, but different enough that it warrants tweaks in a particular section of the data cleaning.
+- Classes can shine in these instances
+
+## Classes are as easy as...
+
+-  Classes are easy to define and basics can already make your code easier to understand:
+
+```python
+
+class DataCleaning:
+
+    def __init__(self, a,b,c):
+        self.a = a
+        self.b = b
+        self.c = c
+    
+    def clean(self, X):
+        return self.a*X
+
+a=1
+b=2
+c=3
+X = np.array([...])
+
+d = DataCleaning(a,b,c)
+
+d.clean(X)
+
+```
+
+- A few things to note:
+- Every classes needs an `__init__` method
+- That's the starter button
+    - When you *instantiate a class*, that's the first function that runs (or nearly first function)
+- A special keyword for classes is `self`.
+- It is essentially a parameter that refers to the class' own *attributes*. 
+    - In this case, that's the attributes a,b,c
+    - We can access those attributes through `self.a` etc...
+- Every *method* in the class needs to have the `self` parameter as its first parameter.
+- After this, we can write *methods* much in the same way that we would write regular functions.
+- But now we can instantiate a class, and those methods will be available to the class, as well as its attributes.
+
+## Back to the Example:
+
+- Before embarking on cleaning data, perhaps ask yourself:
+    - What are the modules you need to clean?
+    - How similar are those modules?
+    - What is similar between them and what is different?
+- Suppose we have two waves of the LSMS that need to be cleaned and appended together
+    - We have a labor module and we have a yield module
+    - Yields need to be constructed by dividing kg of wheat by acreage
+    - Wages need to be put into real terms
+    - We can start by writing functions:
+    - But there are two differences that make things annoying
+        - Variable names are slightly different
+        - In one output is in kg and in the other, we need to convert them from pounds
+
+## Writing functions for wage and yield
+
+- Don't start with classes when functions will do
+- Always try to do things by thinking about whether the extra "machinery" is worth it.
+- Suppose we start (as we all should) with just writing a function for the first year of the labor module.
+
+```python
+def real_wage(w: pd.Series, deflator:float) -> pd.Series:
+    """deflates wage by GDP deflator
+
+    Args:
+        w (pd.Series): A pandas series with wage data
+        deflator (float): The wage deflator for the year
+
+    Returns:
+        pd.Series: The deflated wage
+    """    
+    return w/deflator
+
+def calculate_yield(o: pd.Series, 
+    a: pd.Series, 
+    wave: int) -> pd.Series:
+    """Calculates yields, and converts to pounds if wave=1
+
+    Args:
+        o (pd.Series): output from each farm
+        a (pd.Series): acreage of the farm
+        wave (int): The wave of data
+
+    Returns:
+        pd.Series: a series with yields
+    """    
+
+    if wave==1:
+        # wave needs to be converted to kg
+        o = o*.453
+        return o/a
+    else:
+        return o/a
+
+```
+
+- If we want to then clean our data:
+
+```python
+wages_1 = pd.read_stata(...)
+wages_2 = pd.read_stata(...)
+output_acres_1 = pd.read_stata(...)
+output_acres_2 = pd.read_stata(...)
+
+deflator_1 = 1
+deflator_2 = 0.9
+
+real_wages_1 = real_wages(wages_1['s05q14'], deflator_1)
+real_wages_2 = real_wages(wages_2['s05q13'], deflator_2)
+yields_1 = calculate_yield(output_acres_1['s03q01'], output_acres_1['s03q02'],wave=1)
+yields_2 = calculate_yield(output_acres_2['s03q02'], output_acres_1['s03q03'],wave=2)
+
+```
+
+- And we have it!
+- Is this readable? Not bad...
+- But it contains some repetition...
+- But what if we need to clean wave 3 later?
+- Or we need to clean another module.
+- This can get unruly fast...
+
+## Creating Classes for this
+
+- To break this up into classes, we need to distill what's similar in all this code.
+- For one `real_wage` seems similar in structure
+- `calculate_yield` is similar but is wave-dependent
+- Each wave has its own deflator
+- Variable names are wave-dependent
+- Each wave has its own set of data
+- First let's throw everything into a base class called `Cleaning`:
+
+```python
+class Cleaning:
+
+    def __init__(self, deflator: float, var_names: dict, wages: pd.DataFrame, output_acres:pd.DataFrame):
+        self.deflator = deflator
+        self.var_names = var_names
+        self.wages = wages
+        self.output_acres = output_acres
+
+    def real_wage(self):
+        wage = self.var_names['wage']
+        return self.wages[wage]/self.deflator
+
+    def calculate_yield(self):
+        output = self.var_names['output']
+        acreage = self.var_names['acreage']
+
+        return self.output_acres[output]/self.output_acres[acreage]
+
+    def clean(self):
+        real_wage = self.real_wage()
+        calculated_yield = self.calculate_yield()
+
+        return real_wage, calculated_yield
+```
+
+- We've distilled everything similar across the waves into an *abstract* class that will be *inherited*.
+- We chose the basic version of `calculate_yield` as it'll clear that we can just re-use it when we need and inherit
+
+
+## Creating our wave-specific classes
+
+- Now we can create inherited classes for each wave
+- Where the only way they will differ is in **how they are different**.
+
+```python
+
+class Wave1Cleaning(Cleaning):
+
+    def calculate_yield(self):
+        output = self.var_names['output']
+        acreage = self.var_names['acreage']
+
+        output = output*.453
+
+        return self.df[output]/self.df[acreage]    
+
+
+```
+
+-  And we're done! `Wave1Cleaning` had to be created so that we could create a new `calculate_yield` method. Otherwise, when we *inherit* from another class, we also inherit every other method and attribute from its *parent* class.
+- To clean, we just do:
+
+```python
+
+wages_1 = pd.read_stata(...)
+wages_2 = pd.read_stata(...)
+output_acres_1 = pd.read_stata(...)
+output_acres_2 = pd.read_stata(...)
+
+deflator_1 = 1
+deflator_2 = 0.9
+
+var_names = {
+    'wave_1' : {
+        'wage' : 's05q14',
+        'output' : 's03q01',
+        'acreage' : 's03q02'
+    },
+    'wave_2' : {
+        'wage' : 's05q13',
+        'output' : 's03q02',
+        'acreage' : 's03q03'
+    }
+}
+
+w1 = Wave1Cleaning(deflator_1, var_names['wave_1'], wages_1, output_acres_1)
+
+w2 = Cleaning(deflator_2, var_names['wave_2'], wages_2, output_acres_2)
+
+real_wages_1, yields_1 = w1.clean()
+real_wages_2, yields_2 = w2.clean()
+
+```
+
+- This code *seems* more verbose, but we just organized things a lot better. Differences in variable names are clearly seen in `var_names`.
+- If you look at the cleaning classes, you know exactly how the two waves differ, in `calculate_yield`
+- If we were to put this in our project, `Cleaning` and `Wave1Cleaning` would go into `src/cleaning.py` and when we actually do the cleaning, we would do that from `main.py` or `main.ipynb` and make the appropriate import.
+- If we ever need to add to the code, or improve it, we know exactly where we should go.
+    
+## General tips on the process of writing code
+
+-   Before starting, you should first *visualize* the work flow...
+
+    -   *"If you don't know where you're going, any road'll take you there"* (based on *Alice in Wonderland*, Lewis Carroll)
+    -   Have a clear idea of repetitive tasks
+    -   Think how you want your project and code to be structured when done
+
+-   ... then start writing your code interactively
+
+    -   Writing and running code in the console and script file editor
+    -   But do not lose sight of the forest for the trees
+
+-   Do not run a "big" task without testing on a small test dataset
+
+-   Constantly re-check your code runs *entirely* (not just little pieces)
+
+-   Leave "breadcrumbs" for easier debugging
+
+## Recap
+
+- Create a good directory structure from the start
+- Write "good functions"
+- This makes debugging MUCH easier.
+- If needed, write classes
+    - Especially if you envision that code will need to be expanded with time and collaborator demands
+- Write good docstrings for functions that aren't obvious.
+    - If you can add examples to improve readability
+
