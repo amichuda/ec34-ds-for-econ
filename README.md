@@ -57,6 +57,10 @@ The grade from this will be the average of the grades by each individual. Extra 
 
 Homework will be due a week after it is assigned. These will involve more difficult empirical exercises. You should start these early. During the weeks when there is no problem set due on Friday, please stay engaged with Moodle, as there may be activities or readings that will help solidify your understanding of the material. All homework assignments should be submitted via Moodle as a replication package (i.e. .zip file containing all code and data necessary to reproduce your results).
 
+## Assignments
+
+In the `assignments` folder, there are assignments that I will make us do during class. These are not graded, but do provide a useful way to practice the material we are learning in class as well as material that will help you for the midterm.
+
 ## Special Topic
 
 The last lecture of the course will be a special topic that I will write up based on what students want. I will send out a poll to see which topic would be most interesting. Topics include, but are not limited to:
