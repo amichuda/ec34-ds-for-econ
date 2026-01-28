@@ -2,7 +2,7 @@
 
 Spring 2026
 
-M/W 1:15-2:30 Location: Kohlberg 226
+M/W 1:15-2:30 Location: SCI 183
 
 **Prof. Aleksandr Michuda**\
 Email: amichud1\@swarthmore.edu
